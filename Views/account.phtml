@@ -1,0 +1,77 @@
+<?php require('template/header.phtml') ?>
+
+<h3>Welcome <?Php echo $view->name?></h3>
+<h3>Email: <?php echo $view->email?></h3>
+<h3>User ID: <?php echo $view->userid?></h3>
+<form  name="form1" method="post" action="">
+    <label>
+        <input name="logoutButton" type="submit"  value="logoutButton">
+    </label>
+</form>
+
+
+
+<h3>Your Bids: </h3>
+<div class ='row' id='content'>
+    <table id="dtBasicExample" class="table table-striped table-bordered table-sm pagination justify-content-center">
+        <thead>
+        <tr>
+            <th scope="col">name</th>
+            <th scope="col">amount bidded</th>
+            <th scope="col">description</th>
+        </tr>
+        </thead>
+<?php
+foreach ($view->bids as $lotData) {
+    $title = $lotData->getItemtitle();
+    $image = $lotData->getImageurl();
+    $maxBid = $lotData->getCurrentMaxBid();
+    $description = $lotData->getItemdescription();
+    $id = $lotData->getLotsid();
+    echo
+    "<tr>".
+        "<td>". $title."</td>".
+        "<td>". $maxBid."</td>".
+        "<td>". $description."</td>".
+        "</tr>";
+
+
+}
+?>
+
+
+</table></div><h3>Your Auctions: </h3>
+<div class ='row' id='content'>
+    <table id="dtBasicExample" class="table table-striped table-bordered table-sm pagination justify-content-center">
+        <thead>
+        <tr>
+            <th scope="col">name</th>
+            <th scope="col">description</th>
+            <th scope="col">date set</th>
+        </tr>
+        </thead>
+        <?php
+        foreach ($view->auctions as $auctionData)
+        {
+            $auctionTitle = $auctionData->getAuctionName();
+            $auctionDescription = $auctionData->getAuctionDescription();
+            $auctionDate = $auctionData->getAuctionStartDate();
+            echo
+            "<tr>".
+            "<td>".$auctionTitle ."</td>".
+            "<td>".$auctionDescription."</td>".
+            "<td>". $auctionDate ."</td>".
+
+
+            "</tr>";
+        }
+
+
+        ?>
+    </table></div>
+
+
+
+
+
+<?php require('template/footer.phtml') ?>

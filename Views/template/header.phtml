@@ -1,0 +1,110 @@
+<?php
+header('Content');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Bootstrap core CSS -->
+    <link href= "css/bootstrap.css" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="css/bootstrap-theme.css" rel="stylesheet">
+    <link href="css/my-style.css" rel="stylesheet">
+
+    <title>Server-Side Programming - <?php echo $view->pageTitle ?></title>
+</head>
+
+<body role="document">
+<div class="container">
+    <div class="row d-flex flex-row" id="navbar">
+
+        <nav class="navbar navbar-expand-lg navbar-light navbar-static-top" >
+        <ul class="nav navbar_default nav-tabs" id="menu">
+            <li><a href="index.php">Home</a></li>
+            <li><a href="auctions.php">auctions</a></li>
+            <li><a href='lots.php'>lots</a></li>
+            <?php
+            if(isset($_SESSION) and isset($_SESSION['loggedin']))
+            {
+                echo "<li><a href='account.php'>account</a></li>";
+                echo '<div  class="pull-right">
+            <h3 id="noteTotal"></h3><img class="pull-right" src="/MVCtemplate/images/notification.png" id="notificationIcon">
+
+            </div>
+            <div id="notifications" class="pull-right"></div>';
+            }
+            else
+            {
+                echo "<li><a href='login.php'>login</a></li>";
+                echo "<li><a href='signup.php'>sign up</a></li>";
+            }
+            ?>
+
+
+
+
+            <h1 id="title" class="pull-right"><?php echo $view->pageTitle ?> </h1>
+            <?php
+            if ($view->pageTitle == "Auctions" or $view->pageTitle == "Lots")
+            {
+                echo '
+             <li>
+                <form method="get" action="" >
+                <select id="selector" class="my-select" name="searchBy">
+                <option value="SearchByName">SearchByName</option>
+                <option value="SearchById">SearchById</option>
+                <option value="SearchByDescription">SearchByDescription</option>
+                </select>
+                    <input autocomplete="off" class="" onkeyup="hint(this.value)" type="text" placeholder="Search" aria-label="Search" name="searchValue" id="searchBar" >
+                 <input type="submit" value="search" name="search" id="submitButton">
+                 <div id="livesearch"></div>
+                 
+                </form>
+            </li>';
+            }
+            ?>
+        </ul>
+        </nav>
+
+
+
+
+    </div></div>
+
+    <div class="container"  >
+
+<script type="text/javascript" src="/MVCtemplate/js/searchHint.js"></script>
+        <script type="text/javascript" src="/MVCtemplate/js/notifications.js"></script>
+
+
+
+<script type="text/javascript">
+
+
+    //event listeners
+    document.getElementById('notificationIcon').addEventListener('mouseover', function (){
+            showMessages();
+    });
+
+    document.getElementById('notificationIcon').addEventListener('mouseleave', function ()
+    {
+        document.getElementById("notifications").innerHTML = "";
+    });
+    document.getElementById('notifications').addEventListener('mouseover', function ()
+    {
+        showMessages();
+    });
+
+    document.getElementById('notifications').addEventListener('mouseleave', function ()
+    {
+        document.getElementById("notifications").innerHTML = "";
+    });
+
+//get notifications on startup
+notify();
+</script>

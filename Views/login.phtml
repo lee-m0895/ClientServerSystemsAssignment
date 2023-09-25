@@ -1,0 +1,25 @@
+<?php require('template/header.phtml') ?>
+
+<div id="content">
+<h3>Welcome, please login</h3>
+<form action="" method="post">
+    <label for="username">username:</label>
+    <input class="form-control form-control-md" type="text" id="username" name="username"><br><br>
+    <label for="password">password:</label>
+    <input class="form-control form-control-md" type="password" id="password" name="password"><br><br>
+   <input type="submit" name = "submitButton" value="Submit">
+
+</form>
+
+
+<?php
+if (isset($view->error))
+{
+    echo "<h3>". $view->error. "</h3>";
+}
+?>
+<a href="signup.php">Dont have a account?</a>
+
+
+<?php require('template/footer.phtml') ?>
+</div>

@@ -1,0 +1,73 @@
+<?php require('template/header.phtml') ?>
+
+<?php
+if (isset($view->singular))
+{
+
+//display a single lot, this allows for unique dynamic  url for user
+    //do this for every lot recieved
+    foreach ($view->lots as $lotData) {
+        $title = $lotData->getItemtitle();
+        $image = $lotData->getImageurl();
+        $description = $lotData->getItemdescription();
+        $id = $lotData->getLotsid();
+        $maxBid = $lotData->getCurrentMaxBid();
+        $url = "lots.php?idHolder=" . $id . "&select=select";
+
+        //display item using html
+        echo " <div class ='container' id='content'>
+
+            <div class= 'row '>"
+
+            . "<div class=' col-lg-3 col-md-4 col-sm-6 col-xs-12 '><a href=" . $url . "><h3>" . $title . "</h3></a>
+            <a href=" . $url . "><img id='lotsImage' src=" . $image . "></a>
+            </div>" .
+
+            "<div class=' col-lg-6 col-md-6 col-sm-6  ' ><h3>description: </h3><p>" . $description ."" . "</p>".
+            "<h3>current bid </h3><h3>£" . $maxBid . "</h3></div>
+            </div></div>";
+    }
+
+}
+else
+{
+
+//display multiple lot, this allows for unique dynamic  url for user
+    //do this for every auction recieved
+    foreach ($view->auctions as $auctionData) {
+        $title = $auctionData->getAuctionName();
+        $image = $auctionData->getAuctionImage();
+        $description = $auctionData->getAuctionDescription();
+        $id = $auctionData->getAuctionid();
+        $date = $auctionData->getAuctionStartDate();
+
+
+        //display item using html
+         echo "<div class ='container' id='content'>
+
+            <div class= 'row '>"
+
+            . "<div class=' col-lg-3 col-md-4 col-sm-6 col-xs-12 '><h3>" . $title . "</h3>
+            <img id='lotsImage' src=" . $image . "></a>
+            </div>" .
+
+            "<div class=' col-lg-6 col-md-6 col-sm-6  ' ><h3> description: </h3><p>" . $description ."" . "</p>".
+            "  
+            <form method='get' action=''>
+            <input type='hidden' id='idHolder' name='idHolder', value='" . $id . "'>
+            <h3>date started: ".$date."</h3>
+            <input type='submit', name='select', value='select'>
+            </form>
+       
+            </div>
+            </div></div>";
+
+    }
+}
+?>
+
+
+
+<?php require('template/footer.phtml') ?>
+
+

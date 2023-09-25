@@ -1,0 +1,307 @@
+<div class ='container' id='content'>
+
+<div class ='row' id='content'>
+    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+    <h3> <?php echo $view->title?> </h3>
+    <img id='lotsImage' src=" <?php echo $view->image ?> ">
+    </div>
+
+
+    <div class="col-lg-6 col-md-4 col-sm-4">
+    <p class='text-truncate'> <?php echo $view->description?> </p>
+        <p id="timer"> test</p>
+        <p class='text-truncate' id = 'winning'></p>
+    <h3>current bid</h3>
+    <h3 id="bidValue"></h3>
+    <form method="post" action="" onsubmit="return validation(this);">
+        <input class="form-control form-control-md" type="text" id="bid" name="bid">
+        <input type="submit" name="submitBid" value="submitBid">
+        <input type="hidden" id="userid" name="userid" value="<?php echo $view->userid?>">
+    </form>
+    </div>
+</div>
+
+
+<script>
+
+    //global variables for auction system
+        var winnerid = null;
+        var lotid = <?php echo $view->id?>;
+        var userid = document.getElementById("userid");
+        userid = userid.getAttribute("value");
+        var hasBid = false;
+        var range;
+
+        //innitial html text to alert user about waiting
+        document.getElementById("timer").innerHTML = "fetching...";
+        document.getElementById("bidValue").innerHTML = "fetching..."
+        document.getElementById("winning").innerHTML = "fetching...";
+        checkIfBid();
+
+
+        //timer
+        var intervalId = window.setInterval(function(){
+        updateBid();
+        timer();
+         }, 1000);
+
+
+
+    //update the web page with current highest bid
+   function updateBid()
+    {
+
+        //set up xml request
+        var xhr = new XMLHttpRequest();
+        //ajax file
+        xhr.open("GET", "getBid.php?q="+lotid, true);
+        xhr.onreadystatechange = function ()
+        {
+            var DONE = 4;
+            var OK = 200;
+            if (xhr.readyState === DONE)
+            {
+                if (xhr.status === OK) {
+
+                    //ajax responce values
+                    var values = JSON.parse(this.responseText);
+
+                    //html document for displaying max bid value
+                    var bid = document.getElementById("bidValue");
+
+                    //html document for telling user if they have won
+                    var winner = document.getElementById("winning");
+
+                    //if this responce text is not empty
+                    if (this.responseText != "false") {
+
+                        //get the max bid
+                        var bidValue = values.amountBidded;
+                        //get the winning user id
+                        winnersid = values.usersid;
+
+
+                        //if the current signed in user is the winner
+                        if (winnersid.toString() == userid) {
+
+                            winner.innerHTML = "You are Winning";
+                            winner.style.color = "green";
+
+                            //if the user has not bid on this lot
+                        } else if (userid == "" || hasBid == false) {
+                            winner = document.getElementById("winning");
+                            winner.innerHTML = "";
+
+                            //if the user is loosing this lot
+                        } else {
+                            winner = document.getElementById("winning")
+                            winner.innerHTML = "You have been outbid";
+                            winner.style.color = "red";
+                        }
+                    }
+                    //if the responce text is empty
+                    else {
+                        //if there are no bids
+                        winnersid = null;
+                        bidValue = 0;
+                        winner.innerHTML = "";
+                    }
+                    //set html element to max bid value
+                    bid.innerHTML = bidValue;
+                }
+                else
+                {
+                    //report a error for xhr
+                    console.log('Error: ' + xhr.status);
+                }
+            }
+        };
+
+        xhr.send(null);
+    }
+
+
+     //check if the user has bid on this lot
+    function checkIfBid()
+    {
+        //set up xmlh request
+        let xhr = new XMLHttpRequest();
+        //check if user has bid on lot
+        xhr.open("GET", "getBid.php?checkForBid="+ userid +"&lot="+ lotid, true);
+        xhr.onreadystatechange = function ()
+        {
+            let DONE = 4;
+            let OK = 200;
+            if (xhr.readyState === DONE)
+            {
+                if (xhr.status === OK)
+                {
+                    //if the user has bid
+                     if (this.responseText == "Bid")
+                     {
+                         //set global field to alert other functions user has bid
+                         hasBid = true;
+                     }
+                     //if user has not bid
+                     else
+                     {
+                         //set global field to alert other functions user has not bid
+                         hasBid = false;
+                     }
+                }
+
+            }
+            else
+            {
+                //log ajax error
+                console.log('Error: ' + xhr.status);
+            }
+        }
+        xhr.send(null);
+    }
+
+
+
+    //alert the user if they have won or lost on bid
+    function alertWinner()
+    {
+        checkIfBid();
+        if (winnerid != undefined)
+        {
+            //if user has won
+            if (range <= 0 && userid == winnersid)
+            {
+                //tell user they have won
+                document.getElementById("winning").innerHTML = "you have won";
+                alert("you have won");
+            }
+            //if user has bid and not won
+            if (range <= 0 && hasBid == true && userid != winnerid)
+            {
+                //alert user they have lost
+                alert("you have lost");
+            }
+        }
+
+    }
+
+
+//countdown timer
+function timer()
+{
+    //set auction date
+    let auction = <?php echo $view->auctionId ?>;
+    //set up ajax request
+ let xhr = new XMLHttpRequest();
+ //get auction date
+ xhr.open("GET", "getBid.php?auctionId="+auction, true);
+ //when xhr is set up
+ xhr.onreadystatechange = function ()
+ {
+     let DONE = 4;
+     let OK = 200;
+     if (xhr.readyState === DONE)
+     {
+         if (xhr.status === OK)
+         {
+             //set date up
+             let date = JSON.parse(this.responseText);
+             date = date.auctionStartDate;
+
+             //convert date to js format
+             let dateValue = date.split(" ");
+             let days = dateValue[0].split("-");
+             let min = dateValue[1].split(":");
+             let deadline = new Date(parseInt(days[0]),parseInt(days[1]), parseInt(days[2]), parseInt(min[0]), parseInt(min[1]), parseInt(min[2])).getTime();
+             //get the current date time
+             let current = new Date().getTime();
+             //work out distance between two dates
+              range = deadline - current;
+
+                //calculate remaining dys, hrs, mins sec's.
+              days = Math.floor(range / (1000* 60 * 60 * 24) );
+             let hours = Math.floor(range % (1000 * 60 * 60 * 24)/ (1000 * 60 * 60));
+             let minutes = Math.floor((range % (1000 * 60 * 60)) / (1000 * 60));
+             let seconds = Math.floor((range % (1000 * 60)) / 1000);
+
+             //display date
+             document.getElementById("timer").innerHTML = "Days: " + days + " hrs: " + hours + " min: " + minutes + " sec: " + seconds;
+
+             //if there is no time remaining
+             if (range <= 0)
+             {
+                 //stop timer
+                 clearInterval(intervalId);
+                 //set html to tell user the auction has ended
+                 document.getElementById("timer").innerHTML = "Auction Ended";
+                 //send a alert to the winner or loser of the auction
+                 alertWinner();
+
+             }
+         }
+
+     }
+     else
+     {
+         console.log('Error: ' + xhr.status);
+     }
+ }
+ xhr.send(null);
+}
+
+
+
+
+
+//validation system
+    var auctionState = true;
+
+    function validation(thisform) {
+        console.log(range);
+        var maxBid = document.getElementById("bidValue");
+        maxBid = maxBid.innerHTML;
+
+
+        console.log(maxBid.value);
+        with (thisform)
+        {
+            //check if the timer has ended
+            if (range > 0) {
+
+                    //check if user is logged in
+                    if (userid.value == "") {
+                        alert("please log in");
+                        return false;
+                    } else {
+                        //check if the user has entered a bid
+                        if (bid.value == "") {
+                            alert("please enter a value");
+                            return false;
+                        }
+                        //check if the bid entered is valid
+                        if (bid.value > maxBid.value) {
+                            alert("bid made");
+                            return true;
+                        }
+                        //check if the bid is not valid
+                        if (bid.value < maxBid.value) {
+                            alert("enter a value higher then the current highest bid")
+                            return false;
+                        }
+                    }
+                }
+            //tell user the bid has ended
+            else
+            {
+                alert("this bid has ended");
+                return false;
+            }
+        }
+
+    }
+</script>
+
+
+
+
+
